@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'OpenClaw App',
-  description: 'Built by OpenClaw agents',
+  title: 'Baizil',
+  description: 'Internal student portal for staff — real-time attendance metrics and weather data.',
 };
 
 export const viewport: Viewport = {

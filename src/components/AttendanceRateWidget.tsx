@@ -2,7 +2,7 @@
 
 /**
  * AttendanceRateWidget displays the current student attendance rate,
- * auto-refreshes every 30 seconds, and shows an error on failure.
+ * auto-refreshes every 30 seconds, and shows a user-friendly error on failure.
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ interface AttendanceData {
 
 const REFRESH_INTERVAL_MS = 30_000;
 const API_ENDPOINT = '/api/attendance';
+const ERROR_MESSAGE = 'Failed to load attendance data. Please try again later.';
 
 export default function AttendanceRateWidget() {
   const [rate, setRate] = useState<number | null>(null);
@@ -40,9 +41,7 @@ export default function AttendanceRateWidget() {
 
     const intervalId = setInterval(fetchAttendance, REFRESH_INTERVAL_MS);
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [fetchAttendance]);
 
   return (
@@ -64,9 +63,7 @@ export default function AttendanceRateWidget() {
       )}
 
       {!isLoading && hasError && (
-        <p className="text-red-600 dark:text-red-400">
-          Failed to load attendance data. Please try again later.
-        </p>
+        <p className="text-red-600 dark:text-red-400">{ERROR_MESSAGE}</p>
       )}
 
       {!isLoading && !hasError && rate !== null && (

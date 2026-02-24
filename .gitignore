@@ -1,0 +1,5 @@
+# OpenClaw internal directories
+.bare/
+.bare.lock
+worktrees/
+junit.xml

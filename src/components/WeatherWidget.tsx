@@ -57,6 +57,24 @@ function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/** Checks whether an error message indicates a geolocation-related failure. */
+function isGeolocationError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('permission') ||
+    lower.includes('denied') ||
+    lower.includes('not supported') ||
+    lower.includes('unavailable') ||
+    lower.includes('geolocation') ||
+    lower.includes('location')
+  );
+}
+
+/** Checks whether an error message indicates the browser has no geolocation API. */
+function isUnsupportedError(message: string): boolean {
+  return message.toLowerCase().includes('not supported');
+}
+
 /** WeatherWidget — shows real-time weather based on the user's geolocation. */
 export default function WeatherWidget() {
   const [state, setState] = useState<WidgetState>({ status: 'loading' });
@@ -68,18 +86,11 @@ export default function WeatherWidget() {
       setState({ status: 'success', data });
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : 'Unknown error';
-      const isGeoError =
-        raw.toLowerCase().includes('permission') ||
-        raw.toLowerCase().includes('denied') ||
-        raw.toLowerCase().includes('not supported') ||
-        raw.toLowerCase().includes('unavailable') ||
-        raw.toLowerCase().includes('geolocation');
 
-      if (isGeoError) {
-        const isUnsupported = raw.toLowerCase().includes('not supported');
+      if (isGeolocationError(raw)) {
         setState({
           status: 'error',
-          message: isUnsupported
+          message: isUnsupportedError(raw)
             ? 'Geolocation is not supported by this browser.'
             : 'Unable to determine your location. Please allow location access.',
         });

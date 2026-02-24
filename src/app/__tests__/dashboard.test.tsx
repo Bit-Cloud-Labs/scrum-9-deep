@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import DashboardPage from '../dashboard/page';
 
 // Mock child components so dashboard tests focus on layout

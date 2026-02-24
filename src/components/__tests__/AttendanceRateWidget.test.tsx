@@ -1,4 +1,5 @@
 import { render, screen, act, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import AttendanceRateWidget from '../AttendanceRateWidget';
 
 // Mock global fetch

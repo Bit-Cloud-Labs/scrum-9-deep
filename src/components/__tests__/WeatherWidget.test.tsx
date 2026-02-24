@@ -1,4 +1,5 @@
 import { render, screen, act, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import WeatherWidget from '../WeatherWidget';
 
 const mockFetch = jest.fn();
@@ -46,7 +47,9 @@ describe('WeatherWidget', () => {
       }),
     });
 
-    render(<WeatherWidget />);
+    await act(async () => {
+      render(<WeatherWidget />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/18/)).toBeInTheDocument();
@@ -60,7 +63,9 @@ describe('WeatherWidget', () => {
       error({ message: 'User denied geolocation' });
     });
 
-    render(<WeatherWidget />);
+    await act(async () => {
+      render(<WeatherWidget />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/location access denied/i)).toBeInTheDocument();
@@ -74,7 +79,9 @@ describe('WeatherWidget', () => {
 
     mockFetch.mockRejectedValueOnce(new Error('API error'));
 
-    render(<WeatherWidget />);
+    await act(async () => {
+      render(<WeatherWidget />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/failed to load weather/i)).toBeInTheDocument();
@@ -88,14 +95,16 @@ describe('WeatherWidget', () => {
 
     mockFetch.mockResolvedValueOnce({ ok: false });
 
-    render(<WeatherWidget />);
+    await act(async () => {
+      render(<WeatherWidget />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/failed to load weather/i)).toBeInTheDocument();
     });
   });
 
-  it('auto-refreshes after 10 minutes', async () => {
+  it('auto-refreshes every 30 seconds', async () => {
     mockGeolocation.getCurrentPosition.mockImplementation((success) => {
       success({ coords: { latitude: 51.5, longitude: -0.1 } });
     });
@@ -110,14 +119,16 @@ describe('WeatherWidget', () => {
         json: async () => ({ temperature: 22, condition: 'Sunny', location: 'London' }),
       });
 
-    render(<WeatherWidget />);
+    await act(async () => {
+      render(<WeatherWidget />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/cloudy/i)).toBeInTheDocument();
     });
 
     await act(async () => {
-      jest.advanceTimersByTime(600000);
+      jest.advanceTimersByTime(30_000);
     });
 
     await waitFor(() => {

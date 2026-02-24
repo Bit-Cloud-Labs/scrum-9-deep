@@ -11,6 +11,8 @@ const config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
+  roots: ['<rootDir>/src'],
+  modulePathIgnorePatterns: ['<rootDir>/worktrees/', '<rootDir>/.bare/'],
   reporters: [
     'default',
     [

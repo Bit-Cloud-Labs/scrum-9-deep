@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import ErrorBanner from './ErrorBanner';
 
 interface WeatherData {
@@ -9,7 +9,7 @@ interface WeatherData {
   location: string;
 }
 
-const REFRESH_INTERVAL_MS = 600_000; // 10 minutes
+const REFRESH_INTERVAL_MS = 30_000; // 30 seconds
 
 /** Fetches and displays live weather data based on the user's geolocation. */
 export default function WeatherWidget() {
@@ -17,7 +17,7 @@ export default function WeatherWidget() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadWeather = (latitude: number, longitude: number) => {
+  const loadWeather = useCallback((latitude: number, longitude: number) => {
     fetch(`/api/weather?lat=${latitude}&lon=${longitude}`)
       .then((response) => {
         if (!response.ok) {
@@ -35,9 +35,9 @@ export default function WeatherWidget() {
       .finally(() => {
         setIsLoading(false);
       });
-  };
+  }, []);
 
-  const requestLocation = () => {
+  const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser.');
       setIsLoading(false);
@@ -54,13 +54,13 @@ export default function WeatherWidget() {
         setIsLoading(false);
       }
     );
-  };
+  }, [loadWeather]);
 
   useEffect(() => {
     requestLocation();
     const interval = setInterval(requestLocation, REFRESH_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [requestLocation]);
 
   return (
     <div className="rounded-2xl bg-white dark:bg-gray-800 shadow-md p-6 flex flex-col gap-4">
@@ -69,7 +69,7 @@ export default function WeatherWidget() {
       </h2>
 
       {isLoading && (
-        <p className="text-gray-500 dark:text-gray-400 animate-pulse">Loading weather…</p>
+        <p className="text-gray-500 dark:text-gray-400 animate-pulse">Loading weather\u2026</p>
       )}
 
       {!isLoading && error && <ErrorBanner message={error} />}
@@ -77,7 +77,7 @@ export default function WeatherWidget() {
       {!isLoading && !error && weather && (
         <div className="flex flex-col gap-1">
           <span className="text-4xl font-bold text-sky-600 dark:text-sky-400">
-            {weather.temperature}°C
+            {weather.temperature}\u00b0C
           </span>
           <span className="text-xl text-gray-600 dark:text-gray-300">{weather.condition}</span>
           <span className="text-sm text-gray-500 dark:text-gray-400">{weather.location}</span>

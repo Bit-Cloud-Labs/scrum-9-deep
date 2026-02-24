@@ -57,6 +57,23 @@ function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/**
+ * Extracts a message string from any thrown value.
+ * Handles both Error instances and GeolocationPositionError-like plain objects.
+ */
+function extractMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (
+    err !== null &&
+    typeof err === 'object' &&
+    'message' in err &&
+    typeof (err as Record<string, unknown>).message === 'string'
+  ) {
+    return (err as { message: string }).message;
+  }
+  return 'Unknown error';
+}
+
 /** Checks whether an error message indicates a geolocation-related failure. */
 function isGeolocationError(message: string): boolean {
   const lower = message.toLowerCase();
@@ -70,7 +87,7 @@ function isGeolocationError(message: string): boolean {
   );
 }
 
-/** Checks whether an error message indicates the browser has no geolocation API. */
+/** Checks whether an error message indicates the browser lacks geolocation support. */
 function isUnsupportedError(message: string): boolean {
   return message.toLowerCase().includes('not supported');
 }
@@ -85,7 +102,7 @@ export default function WeatherWidget() {
       const data = await fetchWeather(coords.latitude, coords.longitude);
       setState({ status: 'success', data });
     } catch (err: unknown) {
-      const raw = err instanceof Error ? err.message : 'Unknown error';
+      const raw = extractMessage(err);
 
       if (isGeolocationError(raw)) {
         setState({
